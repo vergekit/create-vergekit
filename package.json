@@ -1,0 +1,45 @@
+{
+  "name": "create-vergekit",
+  "version": "0.1.0",
+  "description": "Create a new VergeKit app.",
+  "type": "module",
+  "bin": {
+    "create-vergekit": "./bin/create-vergekit.js"
+  },
+  "files": [
+    "bin",
+    "src/cli.js",
+    "src/create-project.js",
+    "src/project.js",
+    "src/template.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "prepack": "npm test"
+  },
+  "keywords": [
+    "astro",
+    "cloudflare",
+    "d1",
+    "vergekit",
+    "create"
+  ],
+  "author": "J Youngblood",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jyoungblood/create-vergekit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jyoungblood/create-vergekit/issues"
+  },
+  "homepage": "https://github.com/jyoungblood/create-vergekit#readme",
+  "dependencies": {
+    "tar": "^7.4.3"
+  }
+}
