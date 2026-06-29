@@ -53,15 +53,10 @@ Examples:
 
 function successText(targetArg, targetPath) {
   const projectLabel = targetArg === '.' ? basename(targetPath) : targetArg;
-  const cdStep = targetArg === '.' ? '' : `  cd ${targetArg}\n`;
 
   return `
-Created VergeKit app in ${projectLabel}.
+✅ Created VergeKit app in ${projectLabel}.
 
-Next steps:
-${cdStep}  npm install
-  cp .dev.vars.example .dev.vars
-  npm run db:migrate:local
-  npm run dev
+For next steps, see installation instructions at https://vergekit.com/docs/installation/
 `;
 }

@@ -14,7 +14,9 @@ npm create vergekit@latest .
 
 ## What It Does
 
-- Downloads the current `jyoungblood/vergekit` template from GitHub.
+- Downloads a tagged `jyoungblood/vergekit` release from GitHub.
+- Uses the latest GitHub release for `npm create vergekit@latest`.
+- Uses matching tag `vX.Y.Z` when you install `create-vergekit@X.Y.Z`.
 - Copies the template into the target directory.
 - Updates the generated app's `package.json` name from the target folder.
 - Prints the next setup commands.

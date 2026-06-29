@@ -22,8 +22,11 @@ test('runCli creates a named project and prints next steps', async () => {
       packageName: 'customer-portal',
     },
   ]);
-  assert.match(output.join(''), /cd Customer Portal/);
-  assert.match(output.join(''), /npm install/);
+  assert.match(output.join(''), /Created VergeKit app in Customer Portal/);
+  assert.match(
+    output.join(''),
+    /https:\/\/vergekit\.com\/docs\/installation/,
+  );
 });
 
 test('runCli uses the current directory when no target is provided', async () => {

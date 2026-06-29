@@ -1,6 +1,6 @@
 {
   "name": "create-vergekit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Create a new VergeKit app.",
   "type": "module",
   "bin": {
