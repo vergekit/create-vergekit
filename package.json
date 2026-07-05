@@ -26,19 +26,19 @@
     "vergekit",
     "create"
   ],
-  "author": "J Youngblood",
+  "author": "Jonathan Youngblood",
   "license": "MIT",
   "engines": {
     "node": ">=18.17"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jyoungblood/create-vergekit.git"
+    "url": "git+https://github.com/vergekit/create-vergekit.git"
   },
   "bugs": {
-    "url": "https://github.com/jyoungblood/create-vergekit/issues"
+    "url": "https://github.com/vergekit/create-vergekit/issues"
   },
-  "homepage": "https://github.com/jyoungblood/create-vergekit#readme",
+  "homepage": "https://github.com/vergekit/create-vergekit#readme",
   "dependencies": {
     "tar": "^7.4.3"
   }

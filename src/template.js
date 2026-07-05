@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const VERGEKIT_REPO = 'jyoungblood/vergekit';
+export const VERGEKIT_REPO = "vergekit/vergekit";
 export const LATEST_RELEASE_API = `https://api.github.com/repos/${VERGEKIT_REPO}/releases/latest`;
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..');

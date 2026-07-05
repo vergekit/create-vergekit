@@ -1,6 +1,6 @@
 # create-vergekit
 
-Create a new [VergeKit](https://github.com/jyoungblood/vergekit) app.
+Create a new [VergeKit](https://github.com/vergekit/vergekit) app.
 
 ```bash
 npm create vergekit@latest my-app
@@ -14,7 +14,7 @@ npm create vergekit@latest .
 
 ## What It Does
 
-- Downloads a tagged `jyoungblood/vergekit` release from GitHub.
+- Downloads a tagged `vergekit/vergekit` release from GitHub.
 - Uses the latest GitHub release for `npm create vergekit@latest`.
 - Uses matching tag `vX.Y.Z` when you install `create-vergekit@X.Y.Z`.
 - Copies the template into the target directory.
