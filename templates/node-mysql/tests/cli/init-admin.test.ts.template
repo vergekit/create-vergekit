@@ -1,0 +1,111 @@
+import { describe, expect, it, vi } from 'vitest';
+import {
+  initializeAdminUser,
+  validateAdminInput,
+  type AdminInitializerDependencies,
+} from '../../cli/init-admin';
+
+const validInput = {
+  name: '  Ada Admin  ',
+  email: '  ADA@EXAMPLE.COM  ',
+  password: 'correct horse battery staple',
+};
+
+function createDependencies(
+  overrides: Partial<AdminInitializerDependencies> = {},
+) {
+  return {
+    createUser: vi.fn(async () => ({ id: 'user-1' })),
+    updateUser: vi.fn(async () => undefined),
+    close: vi.fn(async () => undefined),
+    now: () => new Date('2026-07-15T18:00:00.000Z'),
+    ...overrides,
+  } satisfies AdminInitializerDependencies;
+}
+
+describe('Node/MySQL admin initializer', () => {
+  it('normalizes valid input and rejects invalid email/password values', () => {
+    expect(validateAdminInput(validInput)).toEqual({
+      name: 'Ada Admin',
+      email: 'ada@example.com',
+      password: validInput.password,
+    });
+    expect(() =>
+      validateAdminInput({ ...validInput, email: 'invalid' }),
+    ).toThrow('valid admin email');
+    expect(() =>
+      validateAdminInput({ ...validInput, password: 'short' }),
+    ).toThrow('at least 8 characters');
+  });
+
+  it('creates through Better Auth then marks the user verified and admin', async () => {
+    const dependencies = createDependencies();
+
+    await expect(
+      initializeAdminUser(validInput, dependencies),
+    ).resolves.toEqual({
+      id: 'user-1',
+      email: 'ada@example.com',
+    });
+    expect(dependencies.createUser).toHaveBeenCalledWith({
+      name: 'Ada Admin',
+      email: 'ada@example.com',
+      password: validInput.password,
+    });
+    expect(dependencies.updateUser).toHaveBeenCalledWith('user-1', {
+      emailVerified: true,
+      role: 'admin',
+      updatedAt: new Date('2026-07-15T18:00:00.000Z'),
+    });
+    expect(dependencies.close).toHaveBeenCalledOnce();
+  });
+
+  it('reports duplicate users clearly and still closes the pool', async () => {
+    const dependencies = createDependencies({
+      createUser: vi.fn(async () => {
+        throw {
+          body: {
+            code: 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL',
+            message: 'User already exists. Use another email.',
+          },
+        };
+      }),
+    });
+
+    await expect(
+      initializeAdminUser(validInput, dependencies),
+    ).rejects.toThrow('An account already exists for ada@example.com.');
+    expect(dependencies.updateUser).not.toHaveBeenCalled();
+    expect(dependencies.close).toHaveBeenCalledOnce();
+  });
+
+  it('reports Better Auth creation failures and still closes the pool', async () => {
+    const dependencies = createDependencies({
+      createUser: vi.fn(async () => {
+        throw new Error('database unavailable');
+      }),
+    });
+
+    await expect(
+      initializeAdminUser(validInput, dependencies),
+    ).rejects.toThrow(
+      'Better Auth could not create ada@example.com: database unavailable',
+    );
+    expect(dependencies.close).toHaveBeenCalledOnce();
+  });
+
+  it('reports role/verification update failures and still closes the pool', async () => {
+    const dependencies = createDependencies({
+      updateUser: vi.fn(async () => {
+        throw new Error('update rejected');
+      }),
+    });
+
+    await expect(
+      initializeAdminUser(validInput, dependencies),
+    ).rejects.toThrow(
+      'Better Auth created ada@example.com, but the verified admin update failed: update rejected',
+    );
+    expect(dependencies.close).toHaveBeenCalledOnce();
+  });
+});

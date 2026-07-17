@@ -1,0 +1,57 @@
+import { afterAll, describe, expect, it, vi } from 'vitest';
+import { eq } from 'drizzle-orm';
+import { user } from '@/config/schema';
+
+vi.mock('@/runtime', () => ({
+  runtimeEnv: {
+    MYSQL_HOST: '127.0.0.1',
+    MYSQL_PORT: '3306',
+    MYSQL_USER: 'user',
+    MYSQL_PASSWORD: 'password',
+    MYSQL_DATABASE: 'database',
+  },
+}));
+
+import {
+  authDatabaseProvider,
+  closeDatabasePool,
+  db,
+  pool,
+} from '@/db';
+
+afterAll(async () => {
+  await closeDatabasePool();
+});
+
+describe('MySQL database client', () => {
+  it('exports one module-level pool and the MySQL Better Auth provider', () => {
+    expect(pool).toBeDefined();
+    expect(pool).toMatchObject({
+      pool: {
+        config: {
+          connectionConfig: {
+            host: '127.0.0.1',
+            port: 3306,
+            user: 'user',
+            password: 'password',
+            database: 'database',
+            timezone: 'Z',
+          },
+        },
+      },
+    });
+    expect(authDatabaseProvider).toBe('mysql');
+    expect(db.select).toBeTypeOf('function');
+  });
+
+  it('builds typed auth queries without opening a connection', () => {
+    const query = db
+      .select()
+      .from(user)
+      .where(eq(user.email, 'ada@example.com'))
+      .toSQL();
+
+    expect(query.sql).toContain('from `user`');
+    expect(query.params).toEqual(['ada@example.com']);
+  });
+});

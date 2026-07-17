@@ -6,6 +6,14 @@ Create a new [VergeKit](https://github.com/vergekit/vergekit) app.
 npm create vergekit@latest my-app
 ```
 
+Cloudflare Workers + D1 remains the default. Select a preset explicitly with
+either supported flag form:
+
+```bash
+npm create vergekit@latest my-app -- --preset node-mysql
+npm create vergekit@latest my-app -- --preset=node-mysql
+```
+
 Use the current directory:
 
 ```bash
@@ -17,8 +25,10 @@ npm create vergekit@latest .
 - Downloads a tagged `vergekit/vergekit` release from GitHub.
 - Uses the latest GitHub release for `npm create vergekit@latest`.
 - Uses matching tag `vX.Y.Z` when you install `create-vergekit@X.Y.Z`.
-- Copies the template into the target directory.
-- Updates the generated app's `package.json` name from the target folder.
+- Applies and validates the selected preset in a temporary staging directory.
+- Updates the generated app's package and lockfile root names from the target
+  folder.
+- Copies the staged project into the target only after composition succeeds.
 - Prints the next setup commands.
 
 The target directory must be empty, except for common metadata files such as

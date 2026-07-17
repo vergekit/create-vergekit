@@ -1,0 +1,65 @@
+import { readFile } from 'node:fs/promises';
+import { describe, expect, it } from 'vitest';
+
+const projectRoot = new URL('../../', import.meta.url);
+
+async function readProjectFile(path: string) {
+  return readFile(new URL(path, projectRoot), 'utf8');
+}
+
+describe('Node/MySQL generated-app documentation', () => {
+  it('documents the complete local setup and command sequence', async () => {
+    const readme = await readProjectFile('README.md');
+    const guide = await readProjectFile('docs/setup/node-mysql.md');
+    const envExample = await readProjectFile('.env.example');
+
+    for (const command of [
+      'npm run db:migrate',
+      'npm run init:admin',
+      'npm run dev',
+      'npm run verify',
+      'npm run build',
+      'npm run start',
+    ]) {
+      expect(`${readme}\n${guide}`).toContain(command);
+    }
+
+    expect(envExample).toContain('MYSQL_HOST=127.0.0.1');
+    expect(envExample).toContain('MYSQL_PORT=3306');
+    expect(envExample).toContain('MYSQL_USER=user');
+    expect(envExample).toMatch(/^MYSQL_PASSWORD=$/m);
+    expect(envExample).toContain('MYSQL_DATABASE=database');
+    expect(envExample).not.toContain(['DATABASE', 'URL'].join('_'));
+    expect(envExample).toContain('BETTER_AUTH_SECRET=');
+    expect(guide).toContain('MySQL 8');
+    expect(guide).toContain('process manager');
+    expect(guide).toContain('reverse proxy');
+    expect(guide).toContain('/api/health');
+  });
+
+  it('documents only the email providers available to this preset', async () => {
+    const documentation = `${await readProjectFile('README.md')}\n${await readProjectFile('docs/setup/node-mysql.md')}`;
+
+    expect(documentation).toContain('console');
+    expect(documentation).toContain('Resend');
+    expect(documentation).toContain('Mailgun');
+    expect(documentation).toContain('RESEND_API_KEY');
+    expect(documentation).toContain('MAILGUN_API_KEY');
+  });
+
+  it('keeps the verification and database scripts suitable for automation', async () => {
+    const packageJson = JSON.parse(await readProjectFile('package.json')) as {
+      scripts?: Record<string, string>;
+    };
+
+    expect(packageJson.scripts?.verify).toBe(
+      'npm run check && npm run lint && npm run test && npm run build',
+    );
+    expect(packageJson.scripts?.['db:migrate']).toBe('drizzle-kit migrate');
+    expect(packageJson.scripts?.['db:studio']).toBe('drizzle-kit studio');
+    expect(packageJson.scripts?.['init:admin']).toBe('tsx cli/init-admin.ts');
+    expect(packageJson.scripts?.start).toBe(
+      'node ./dist/server/entry.mjs',
+    );
+  });
+});

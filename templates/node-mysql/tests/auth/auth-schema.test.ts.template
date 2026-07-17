@@ -1,0 +1,35 @@
+import { getTableColumns, getTableName } from 'drizzle-orm';
+import { describe, expect, it } from 'vitest';
+import { account, session, user, verification } from '@/config/schema';
+
+describe('Better Auth MySQL schema', () => {
+  it('exposes the core Better Auth table names expected by the Drizzle adapter', () => {
+    expect(getTableName(user)).toBe('user');
+    expect(getTableName(session)).toBe('session');
+    expect(getTableName(account)).toBe('account');
+    expect(getTableName(verification)).toBe('verification');
+  });
+
+  it('includes Better Auth admin plugin fields for app roles and bans', () => {
+    expect(Object.keys(getTableColumns(user))).toEqual(
+      expect.arrayContaining([
+        'role',
+        'banned',
+        'banReason',
+        'banExpires',
+      ]),
+    );
+    expect(Object.keys(getTableColumns(session))).toContain('impersonatedBy');
+  });
+
+  it('uses native MySQL date and boolean columns', () => {
+    const userColumns = getTableColumns(user);
+    const sessionColumns = getTableColumns(session);
+
+    expect(userColumns.emailVerified.dataType).toBe('boolean');
+    expect(userColumns.banned.dataType).toBe('boolean');
+    expect(userColumns.createdAt.dataType).toBe('date');
+    expect(userColumns.updatedAt.dataType).toBe('date');
+    expect(sessionColumns.expiresAt.dataType).toBe('date');
+  });
+});

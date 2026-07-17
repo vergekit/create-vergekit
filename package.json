@@ -1,6 +1,6 @@
 {
   "name": "create-vergekit",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Create a new VergeKit app.",
   "type": "module",
   "bin": {
@@ -10,13 +10,16 @@
     "bin",
     "src/cli.js",
     "src/create-project.js",
+    "src/presets.js",
     "src/project.js",
     "src/template.js",
+    "templates",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
     "test": "node --test",
+    "update:node-mysql-lock": "node ./scripts/update-node-mysql-lockfile.mjs",
     "prepack": "npm test"
   },
   "keywords": [

@@ -1,0 +1,48 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+
+const projectRoot = new URL('../../', import.meta.url);
+
+describe('database config', () => {
+  it('uses one MySQL schema and migration tree', async () => {
+    expect(existsSync(new URL('src/config/schema.ts', projectRoot))).toBe(true);
+    expect(existsSync(new URL('src/db.ts', projectRoot))).toBe(true);
+    expect(existsSync(new URL('drizzle/mysql', projectRoot))).toBe(true);
+
+    const drizzleConfig = readFileSync(
+      new URL('drizzle.config.ts', projectRoot),
+      'utf8',
+    );
+    expect(drizzleConfig).toContain("dialect: 'mysql'");
+    expect(drizzleConfig).toContain("schema: './src/config/schema.ts'");
+    expect(drizzleConfig).toContain("out: './drizzle/mysql'");
+    expect(drizzleConfig).toContain('MYSQL_HOST');
+    expect(drizzleConfig).toContain('MYSQL_PORT');
+    expect(drizzleConfig).toContain('MYSQL_USER');
+    expect(drizzleConfig).toContain('MYSQL_PASSWORD');
+    expect(drizzleConfig).toContain('MYSQL_DATABASE');
+    expect(drizzleConfig).not.toContain(['DATABASE', 'URL'].join('_'));
+
+    const schema = await import('@/config/schema');
+    expect(schema).toEqual(
+      expect.objectContaining({
+        account: expect.anything(),
+        session: expect.anything(),
+        user: expect.anything(),
+        verification: expect.anything(),
+      }),
+    );
+  });
+
+  it('keeps the generated migration aligned with the four auth tables', () => {
+    const migration = readFileSync(
+      new URL('drizzle/mysql/0000_vk_init.sql', projectRoot),
+      'utf8',
+    );
+
+    for (const table of ['account', 'session', 'user', 'verification']) {
+      expect(migration).toContain(`CREATE TABLE \`${table}\``);
+    }
+    expect(migration).not.toContain('app_settings');
+  });
+});

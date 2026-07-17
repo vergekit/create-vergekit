@@ -1,0 +1,94 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const {
+  createAuthFromEnvMock,
+  resolveRouteAccessMock,
+  runtimeEnvFixture,
+} = vi.hoisted(() => ({
+  createAuthFromEnvMock: vi.fn(() => ({
+    api: {
+      getSession: vi.fn(async () => null),
+    },
+    handler: vi.fn(async () => new Response('auth response')),
+  })),
+  resolveRouteAccessMock: vi.fn(() => ({ type: 'allow' as const })),
+  runtimeEnvFixture: {
+    BETTER_AUTH_SECRET: 'test-secret-with-at-least-32-characters',
+    BETTER_AUTH_URL: 'https://vk.example.com',
+  },
+}));
+
+vi.mock('@/db', () => ({
+  authDatabaseProvider: 'mysql',
+  db: {},
+}));
+
+vi.mock('@/runtime', () => ({
+  runtimeEnv: runtimeEnvFixture,
+}));
+
+vi.mock('@vergekit/core/auth', async () => {
+  const actual = await vi.importActual<typeof import('@vergekit/core/auth')>(
+    '@vergekit/core/auth',
+  );
+
+  return {
+    ...actual,
+    createAuthFromEnv: createAuthFromEnvMock,
+    resolveRouteAccess: resolveRouteAccessMock,
+  };
+});
+
+import { onRequest } from '@/middleware';
+import { ALL } from '@/pages/api/auth/[...all]';
+import { runtimeEnv } from '@/runtime';
+
+describe('Node auth runtime seam', () => {
+  beforeEach(() => {
+    createAuthFromEnvMock.mockClear();
+    resolveRouteAccessMock.mockClear();
+  });
+
+  it('forwards the MySQL provider from middleware', async () => {
+    const request = new Request('https://vk.example.com/dashboard');
+    const context = {
+      request,
+      locals: {
+        user: null,
+        session: null,
+        isAuthenticated: false,
+      },
+      redirect: vi.fn(),
+    } as unknown as Parameters<typeof onRequest>[0];
+    const next = vi.fn(async () => new Response('next'));
+
+    await onRequest(context, next);
+
+    expect(createAuthFromEnvMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runtimeEnv,
+        request,
+        drizzle: {
+          provider: 'mysql',
+        },
+      }),
+    );
+    expect(next).toHaveBeenCalledOnce();
+  });
+
+  it('forwards the MySQL provider from the auth endpoint', async () => {
+    const request = new Request('https://vk.example.com/api/auth/session');
+
+    await ALL({ request } as Parameters<typeof ALL>[0]);
+
+    expect(createAuthFromEnvMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runtimeEnv,
+        request,
+        drizzle: {
+          provider: 'mysql',
+        },
+      }),
+    );
+  });
+});

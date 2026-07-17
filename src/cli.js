@@ -1,6 +1,11 @@
 import { basename } from 'node:path';
 
 import { createProject } from './create-project.js';
+import {
+  DEFAULT_PRESET,
+  SUPPORTED_PRESETS,
+  validatePreset,
+} from './presets.js';
 import { resolveTargetDirectory } from './project.js';
 
 export async function runCli(
@@ -16,38 +21,94 @@ export async function runCli(
     return 0;
   }
 
-  const positionalArgs = argv.filter((arg) => !arg.startsWith('-'));
-  const unknownOptions = argv.filter((arg) => arg.startsWith('-'));
-
-  if (unknownOptions.length > 0) {
-    throw new Error(`Unknown option: ${unknownOptions[0]}`);
-  }
-
-  if (positionalArgs.length > 1) {
-    throw new Error('Expected at most one target directory.');
-  }
-
-  const targetArg = positionalArgs[0] ?? '.';
+  const { preset, targetArg } = parseCliArguments(argv);
   const target = resolveTargetDirectory(targetArg, cwd);
 
   await createProjectImpl({
     targetPath: target.path,
     packageName: target.packageName,
+    preset,
   });
 
   stdout.write(successText(targetArg, target.path));
   return 0;
 }
 
+export function parseCliArguments(argv) {
+  const positionalArgs = [];
+  let preset = DEFAULT_PRESET;
+  let presetWasProvided = false;
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+
+    if (arg === '--preset') {
+      if (presetWasProvided) {
+        throw new Error('The --preset option may only be provided once.');
+      }
+
+      const value = argv[index + 1];
+      if (!value || value.startsWith('-')) {
+        throw new Error(
+          `Missing value for --preset. Supported presets: ${SUPPORTED_PRESETS.join(', ')}.`,
+        );
+      }
+
+      preset = validatePreset(value);
+      presetWasProvided = true;
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith('--preset=')) {
+      if (presetWasProvided) {
+        throw new Error('The --preset option may only be provided once.');
+      }
+
+      const value = arg.slice('--preset='.length);
+      if (!value) {
+        throw new Error(
+          `Missing value for --preset. Supported presets: ${SUPPORTED_PRESETS.join(', ')}.`,
+        );
+      }
+
+      preset = validatePreset(value);
+      presetWasProvided = true;
+      continue;
+    }
+
+    if (arg.startsWith('-')) {
+      throw new Error(`Unknown option: ${arg}`);
+    }
+
+    positionalArgs.push(arg);
+  }
+
+  if (positionalArgs.length > 1) {
+    throw new Error('Expected at most one target directory.');
+  }
+
+  return {
+    preset,
+    targetArg: positionalArgs[0] ?? '.',
+  };
+}
+
 function helpText() {
   return `create-vergekit
 
-Usage: npm create vergekit@latest [directory]
+Usage: npm create vergekit@latest [directory] [--preset <preset>]
+       npm create vergekit@latest [directory] [--preset=<preset>]
+
+Presets:
+  cloudflare-d1  Cloudflare Workers + D1 (default)
+  node-mysql     Standalone Node.js + MySQL
 
 Examples:
   npm create vergekit@latest
   npm create vergekit@latest my-app
   npm create vergekit@latest .
+  npm create vergekit@latest my-app -- --preset node-mysql
 `;
 }
 
