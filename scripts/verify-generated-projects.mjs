@@ -342,8 +342,8 @@ async function assertGeneratedTreeInvariants(
   if (preset === 'cloudflare-d1') {
     await Promise.all([
       assertFile(join(targetPath, 'wrangler.jsonc')),
-      assertDirectory(join(targetPath, 'drizzle', 'd1')),
-      assertPathAbsent(join(targetPath, 'drizzle', 'mysql')),
+      assertDirectory(join(targetPath, 'migrations')),
+      assertPathAbsent(join(targetPath, 'drizzle')),
       assertPathAbsent(join(targetPath, 'docs', 'setup', 'node-mysql.md')),
     ]);
     if (
@@ -356,10 +356,10 @@ async function assertGeneratedTreeInvariants(
   } else if (preset === 'node-mysql') {
     await Promise.all([
       assertFile(join(targetPath, '.env.example')),
-      assertDirectory(join(targetPath, 'drizzle', 'mysql')),
+      assertDirectory(join(targetPath, 'migrations')),
       assertFile(join(targetPath, 'docs', 'setup', 'node-mysql.md')),
       assertPathAbsent(join(targetPath, 'wrangler.jsonc')),
-      assertPathAbsent(join(targetPath, 'drizzle', 'd1')),
+      assertPathAbsent(join(targetPath, 'drizzle')),
       assertPathAbsent(join(targetPath, '.dev.vars.example')),
     ]);
     if (

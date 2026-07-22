@@ -55,7 +55,7 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
       'cli/init-admin.ts',
       'docs',
       'drizzle.config.ts',
-      'drizzle/d1',
+      'migrations',
       'package-lock.json',
       'src/config/schema.ts',
       'src/db.ts',
@@ -132,9 +132,9 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
       'tests/db/mysql-client.test.ts',
       'tests/docs/node-mysql-setup.test.ts',
       'tests/email/send-email.test.ts',
-      'drizzle/mysql/0000_vk_init.sql',
-      'drizzle/mysql/meta/0000_snapshot.json',
-      'drizzle/mysql/meta/_journal.json',
+      'migrations/0000_vk_init.sql',
+      'migrations/meta/0000_snapshot.json',
+      'migrations/meta/_journal.json',
     ]),
     forbiddenPaths: Object.freeze([
       'templates',
@@ -161,10 +161,10 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
       'tests/docs/node-mysql-setup.test.ts.template',
       'tests/email/send-email.test.ts.template',
       'wrangler.jsonc',
-      'drizzle/d1',
+      'drizzle',
     ]),
     exclusiveDirectoryChildren: Object.freeze({
-      drizzle: Object.freeze(['mysql']),
+      migrations: Object.freeze(['0000_vk_init.sql', 'meta']),
     }),
     requiredContent: Object.freeze({
       'README.md': Object.freeze([
@@ -190,6 +190,7 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
         'MYSQL_PASSWORD',
         'MYSQL_DATABASE',
         'BETTER_AUTH_SECRET',
+        'migrations/meta',
         'npm run db:migrate',
         'npm run init:admin',
         'npm run dev',
@@ -202,7 +203,7 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
       ]),
       'drizzle.config.ts': Object.freeze([
         "dialect: 'mysql'",
-        "out: './drizzle/mysql'",
+        "out: './migrations'",
         'MYSQL_HOST',
         'MYSQL_DATABASE',
       ]),
@@ -223,6 +224,10 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
         "import 'dotenv/config'",
         'process.env',
       ]),
+      'src/env.d.ts': Object.freeze([
+        'reference types="node"',
+        'loadAuthSession',
+      ]),
     }),
     forbiddenContent: Object.freeze([
       'cloudflare:workers',
@@ -232,7 +237,7 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
       'D1Database',
       'wrangler.jsonc',
       '.dev.vars',
-      'drizzle/d1',
+      'drizzle/',
       'Cloudflare Email',
       'EMAIL binding',
       'Cloudflare Workers',

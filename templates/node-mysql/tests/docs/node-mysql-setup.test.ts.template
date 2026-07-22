@@ -32,6 +32,7 @@ describe('Node/MySQL generated-app documentation', () => {
     expect(envExample).not.toContain(['DATABASE', 'URL'].join('_'));
     expect(envExample).toContain('BETTER_AUTH_SECRET=');
     expect(guide).toContain('MySQL 8');
+    expect(guide).toContain('migrations/meta');
     expect(guide).toContain('process manager');
     expect(guide).toContain('reverse proxy');
     expect(guide).toContain('/api/health');

@@ -26,7 +26,7 @@ const password = process.env.MYSQL_PASSWORD;
 export default defineConfig({
   dialect: 'mysql',
   schema: './src/config/schema.ts',
-  out: './drizzle/mysql',
+  out: './migrations',
   dbCredentials: {
     host: requireMysqlSetting('MYSQL_HOST', process.env.MYSQL_HOST),
     port: resolveMysqlPort(process.env.MYSQL_PORT),

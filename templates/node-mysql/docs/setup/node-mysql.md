@@ -33,6 +33,10 @@ public HTTPS origin.
 
 ## Database and migrations
 
+Committed and generated SQL migrations live in `migrations/`. Drizzle Kit keeps
+its generation journal and schema snapshots in `migrations/meta`; commit that
+directory together with the SQL migrations.
+
 Create an empty MySQL 8 database and a least-privileged application user using
 your provider, administration tool, or an authorized MySQL account. For
 example, an administrator can create the database with:

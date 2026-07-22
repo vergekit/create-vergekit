@@ -19,14 +19,12 @@ const overlayPath = fileURLToPath(
 const schemaPath = join(overlayPath, 'src', 'config', 'schema.ts');
 const migrationPath = join(
   overlayPath,
-  'drizzle',
-  'mysql',
+  'migrations',
   '0000_vk_init.sql',
 );
 const snapshotPath = join(
   overlayPath,
-  'drizzle',
-  'mysql',
+  'migrations',
   'meta',
   '0000_snapshot.json',
 );
@@ -277,11 +275,11 @@ test('schema keeps Date objects at the driver boundary and generated relations f
   assert.doesNotMatch(source, /sqlite-core|\btimestamp\(/);
 });
 
-test('node-mysql output replaces the D1 migration tree with only drizzle/mysql', async () => {
+test('node-mysql output replaces the D1 migration history with MySQL migrations', async () => {
   const stagingPath = await mkdtemp(join(tmpdir(), 'node-mysql-schema-'));
-  await mkdir(join(stagingPath, 'drizzle', 'd1'), { recursive: true });
+  await mkdir(join(stagingPath, 'migrations'), { recursive: true });
   await mkdir(join(stagingPath, 'src', 'pages'), { recursive: true });
-  await writeFile(join(stagingPath, 'drizzle', 'd1', '0000.sql'), '-- d1\n');
+  await writeFile(join(stagingPath, 'migrations', '0000.sql'), '-- d1\n');
   await writeFile(
     join(stagingPath, 'src', 'pages', 'index.astro'),
     '<h1>Canonical homepage</h1>\n',
@@ -293,9 +291,12 @@ test('node-mysql output replaces the D1 migration tree with only drizzle/mysql',
 
   await applyPreset(stagingPath, 'node-mysql');
 
-  assert.deepEqual(await readdir(join(stagingPath, 'drizzle')), ['mysql']);
+  assert.deepEqual((await readdir(join(stagingPath, 'migrations'))).sort(), [
+    '0000_vk_init.sql',
+    'meta',
+  ]);
   assert.deepEqual(
-    (await listFiles(join(stagingPath, 'drizzle', 'mysql'))).sort(),
+    (await listFiles(join(stagingPath, 'migrations'))).sort(),
     ['0000_vk_init.sql', 'meta/0000_snapshot.json', 'meta/_journal.json'],
   );
 });

@@ -50,7 +50,9 @@ describe('Node auth runtime seam', () => {
   });
 
   it('forwards the MySQL provider from middleware', async () => {
-    const request = new Request('https://vk.example.com/dashboard');
+    const request = new Request('https://vk.example.com/dashboard', {
+      headers: { cookie: 'better-auth.session_token=candidate' },
+    });
     const context = {
       request,
       locals: {

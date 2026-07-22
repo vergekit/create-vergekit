@@ -87,7 +87,7 @@ test('node preset composition copies an overlay, removes paths, and mutates pack
   );
   const overlayPath = join(templatesPath, 'node-mysql');
 
-  await mkdir(join(stagingPath, 'drizzle', 'd1'), { recursive: true });
+  await mkdir(join(stagingPath, 'migrations'), { recursive: true });
   await mkdir(join(overlayPath, 'src'), { recursive: true });
   await writeFile(
     join(stagingPath, 'package.json'),
@@ -106,7 +106,7 @@ test('node preset composition copies an overlay, removes paths, and mutates pack
     )}\n`,
   );
   await writeFile(join(stagingPath, 'wrangler.jsonc'), '{}\n');
-  await writeFile(join(stagingPath, 'drizzle', 'd1', '0000.sql'), '-- d1\n');
+  await writeFile(join(stagingPath, 'migrations', '0000.sql'), '-- d1\n');
   await writeFile(join(stagingPath, 'README.md'), '# Cloudflare\n');
   await writeFile(join(overlayPath, 'README.md'), '# Node\n');
   await writeFile(
@@ -117,7 +117,7 @@ test('node preset composition copies an overlay, removes paths, and mutates pack
   const presetDefinitions = {
     'node-mysql': {
       overlayDirectory: 'node-mysql',
-      removePaths: ['wrangler.jsonc', 'drizzle/d1'],
+      removePaths: ['wrangler.jsonc', 'migrations'],
       packageJson: {
         remove: {
           scripts: ['deploy'],
@@ -135,7 +135,7 @@ test('node preset composition copies an overlay, removes paths, and mutates pack
         },
       },
       requiredPaths: ['package.json', 'README.md', 'src/runtime.ts'],
-      forbiddenPaths: ['templates', 'wrangler.jsonc', 'drizzle/d1'],
+      forbiddenPaths: ['templates', 'wrangler.jsonc', 'migrations'],
     },
   };
 
@@ -165,7 +165,7 @@ test('node preset composition copies an overlay, removes paths, and mutates pack
   assert.equal(packageJson.devDependencies.wrangler, undefined);
   await assert.rejects(() => readFile(join(stagingPath, 'wrangler.jsonc')));
   await assert.rejects(() =>
-    readFile(join(stagingPath, 'drizzle', 'd1', '0000.sql')),
+    readFile(join(stagingPath, 'migrations', '0000.sql')),
   );
   await assert.rejects(() => readFile(join(stagingPath, 'templates')));
 });
@@ -298,10 +298,11 @@ test('the shipped Node overlay selects standalone Node, MySQL, and Node-only dep
   assert.match(environmentTypes, /MYSQL_USER/);
   assert.match(environmentTypes, /MYSQL_PASSWORD/);
   assert.match(environmentTypes, /MYSQL_DATABASE/);
+  assert.match(environmentTypes, /loadAuthSession/);
   assert.doesNotMatch(environmentTypes, /Cloudflare|workers-types|D1Database/);
   assert.match(drizzleConfig, /import 'dotenv\/config'/);
   assert.match(drizzleConfig, /dialect: 'mysql'/);
-  assert.match(drizzleConfig, /out: '\.\/drizzle\/mysql'/);
+  assert.match(drizzleConfig, /out: '\.\/migrations'/);
   assert.match(drizzleConfig, /MYSQL_HOST/);
   assert.match(drizzleConfig, /MYSQL_PORT/);
   assert.match(drizzleConfig, /MYSQL_USER/);
@@ -330,6 +331,10 @@ test('the shipped Node overlay selects standalone Node, MySQL, and Node-only dep
   assert.match(initAdminSource, /close: closeDatabasePool/);
   assert.doesNotMatch(initAdminSource, /node:child_process|INSERT\s+INTO/);
   assert.match(authRuntimeTest, /authDatabaseProvider: 'mysql'/);
+  assert.match(
+    authRuntimeTest,
+    /better-auth\.session_token=candidate/,
+  );
   assert.doesNotMatch(authRuntimeTest, /cloudflare:workers/);
   assert.match(initAdminTest, /reports duplicate users clearly/);
   await assert.rejects(() =>

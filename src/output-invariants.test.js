@@ -82,14 +82,14 @@ const canonicalFiles = {
   'docs/decisions/0002-workers-email-provider-strategy.md':
     '# Cloudflare Email decision\n',
   'docs/roadmap.md': '# Cloudflare D1 roadmap\n',
-  'docs/setup/auth-routes.md': 'Use drizzle/d1 for auth migrations.\n',
+  'docs/setup/auth-routes.md': 'Use migrations/ for auth migrations.\n',
   'docs/setup/configuration.md': 'Configure wrangler.jsonc and .dev.vars.\n',
   'docs/setup/d1.md': '# D1 setup\n',
   'docs/setup/deployment.md': '# Cloudflare Workers deployment\n',
   'docs/setup/email.md': 'Use the EMAIL binding.\n',
   'docs/setup/hyperdrive-proof.md': '# Hyperdrive proof\n',
-  'drizzle.config.ts': "export default { out: './drizzle/d1' };\n",
-  'drizzle/d1/0000_vk_init.sql': '-- canonical d1 migration\n',
+  'drizzle.config.ts': "export default { out: './migrations' };\n",
+  'migrations/0000_vk_init.sql': '-- canonical d1 migration\n',
   'src/config/schema.ts': '// sqlite schema\n',
   'src/db.ts': "import { drizzle } from 'drizzle-orm/d1';\n",
   'src/env.d.ts': 'declare const DB: D1Database;\n',
@@ -101,7 +101,7 @@ const canonicalFiles = {
   'tests/auth/server-config.test.ts': '// D1Database server test\n',
   'tests/cli/init-admin.test.ts': '// wrangler d1 admin test\n',
   'tests/config/app-config.test.ts': '// common app config test\n',
-  'tests/config/database-config.test.ts': '// drizzle/d1 config test\n',
+  'tests/config/database-config.test.ts': '// migrations config test\n',
   'tests/db/d1-client.test.ts': '// D1Database client test\n',
   'tests/db/runtime.test.ts': "// cloudflare:workers runtime test\n",
   'tests/docs/hyperdrive-proof.test.ts': '// Hyperdrive docs test\n',
@@ -165,7 +165,6 @@ test('node-mysql composes a clean full fixture with only Node/MySQL operations',
   const absentPaths = [
     '.dev.vars.example',
     'wrangler.jsonc',
-    'drizzle/d1/0000_vk_init.sql',
     'docs/decisions/0001-d1-first-adapter-ready.md',
     'docs/setup/d1.md',
     'tests/db/d1-client.test.ts',
@@ -187,7 +186,14 @@ test('node-mysql composes a clean full fixture with only Node/MySQL operations',
     '// common app config test\n',
   );
   assert.equal(tree['tests/http/health.test.ts'], '// common health test\n');
-  assert.deepEqual(await readdir(join(stagingPath, 'drizzle')), ['mysql']);
+  assert.deepEqual((await readdir(join(stagingPath, 'migrations'))).sort(), [
+    '0000_vk_init.sql',
+    'meta',
+  ]);
+  assert.notEqual(
+    tree['migrations/0000_vk_init.sql'],
+    canonicalFiles['migrations/0000_vk_init.sql'],
+  );
 
   const documentation = `${tree['README.md']}\n${tree['docs/setup/node-mysql.md']}`;
   for (const value of ['console', 'Resend', 'Mailgun']) {
@@ -267,7 +273,7 @@ test('node-mysql composes a clean full fixture with only Node/MySQL operations',
   );
 });
 
-test('node staged validation rejects target content leaks and extra migration trees', async () => {
+test('node staged validation rejects target content leaks and extra migration files', async () => {
   const stagingPath = await mkdtemp(join(tmpdir(), 'vk-output-invalid-'));
   await writeCanonicalFixture(stagingPath);
   await applyPreset(stagingPath, 'node-mysql');
@@ -280,14 +286,13 @@ test('node staged validation rejects target content leaks and extra migration tr
   );
   await rm(leakPath);
 
-  await mkdir(join(stagingPath, 'drizzle', 'postgres'), { recursive: true });
   await writeFile(
-    join(stagingPath, 'drizzle', 'postgres', '0000.sql'),
+    join(stagingPath, 'migrations', '0001_unexpected.sql'),
     '-- unexpected migration\n',
   );
   await assert.rejects(
     validateStagedProject(stagingPath, 'node-mysql'),
-    /unexpected entries in drizzle: mysql, postgres/,
+    /unexpected entries in migrations: 0000_vk_init.sql, 0001_unexpected.sql, meta/,
   );
 });
 

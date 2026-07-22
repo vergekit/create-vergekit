@@ -311,7 +311,7 @@ function createGeneratedProjectStub({ omittedScript } = {}) {
       );
       await writeFixtureFile(
         targetPath,
-        'drizzle/mysql/0000.sql',
+        'migrations/0000.sql',
         '-- mysql\n',
       );
       await writeFixtureFile(
@@ -321,7 +321,7 @@ function createGeneratedProjectStub({ omittedScript } = {}) {
       );
     } else {
       await writeFixtureFile(targetPath, 'wrangler.jsonc', '{}\n');
-      await writeFixtureFile(targetPath, 'drizzle/d1/0000.sql', '-- d1\n');
+      await writeFixtureFile(targetPath, 'migrations/0000.sql', '-- d1\n');
     }
   };
 }
