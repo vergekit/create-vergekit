@@ -180,8 +180,10 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
       ]),
       'astro.config.mjs': Object.freeze([
         "from '@astrojs/node'",
+        "from 'astro-favicons'",
         "output: 'server'",
         "mode: 'standalone'",
+        'html: false',
       ]),
       'docs/setup/node-mysql.md': Object.freeze([
         'MYSQL_HOST',
