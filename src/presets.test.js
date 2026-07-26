@@ -314,15 +314,15 @@ test('the shipped Node overlay selects standalone Node, MySQL, and Node-only dep
     envExample,
     'MYSQL_HOST=127.0.0.1\n' +
       'MYSQL_PORT=3306\n' +
-      'MYSQL_USER=user\n' +
+      'MYSQL_USER=\n' +
       'MYSQL_PASSWORD=\n' +
-      'MYSQL_DATABASE=database\n\n' +
+      'MYSQL_DATABASE=\n\n' +
       'BETTER_AUTH_SECRET=\n' +
       'BETTER_AUTH_URL=http://localhost:4321\n\n' +
       'EMAIL_PROVIDER=console\n\n' +
       '# EMAIL_PROVIDER="resend"\n' +
       '# EMAIL_FROM="VK <a@b.c>"\n' +
-      '# RESEND_API_KEY=',
+      '# RESEND_API_KEY=\n',
   );
   assert.match(gitignore, /^\.env$/m);
   assert.match(gitignore, /^!\.env\.example$/m);

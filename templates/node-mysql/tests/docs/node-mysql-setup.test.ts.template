@@ -26,9 +26,9 @@ describe('Node/MySQL generated-app documentation', () => {
 
     expect(envExample).toContain('MYSQL_HOST=127.0.0.1');
     expect(envExample).toContain('MYSQL_PORT=3306');
-    expect(envExample).toContain('MYSQL_USER=user');
+    expect(envExample).toMatch(/^MYSQL_USER=$/m);
     expect(envExample).toMatch(/^MYSQL_PASSWORD=$/m);
-    expect(envExample).toContain('MYSQL_DATABASE=database');
+    expect(envExample).toMatch(/^MYSQL_DATABASE=$/m);
     expect(envExample).not.toContain(['DATABASE', 'URL'].join('_'));
     expect(envExample).toContain('BETTER_AUTH_SECRET=');
     expect(guide).toContain('MySQL 8');

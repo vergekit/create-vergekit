@@ -213,15 +213,15 @@ test('node-mysql composes a clean full fixture with only Node/MySQL operations',
     tree['.env.example'],
     'MYSQL_HOST=127.0.0.1\n' +
       'MYSQL_PORT=3306\n' +
-      'MYSQL_USER=user\n' +
+      'MYSQL_USER=\n' +
       'MYSQL_PASSWORD=\n' +
-      'MYSQL_DATABASE=database\n\n' +
+      'MYSQL_DATABASE=\n\n' +
       'BETTER_AUTH_SECRET=\n' +
       'BETTER_AUTH_URL=http://localhost:4321\n\n' +
       'EMAIL_PROVIDER=console\n\n' +
       '# EMAIL_PROVIDER="resend"\n' +
       '# EMAIL_FROM="VK <a@b.c>"\n' +
-      '# RESEND_API_KEY=',
+      '# RESEND_API_KEY=\n',
   );
   for (const command of [
     'npm run db:migrate',
