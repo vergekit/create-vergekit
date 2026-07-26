@@ -1,7 +1,7 @@
 {
   "name": "create-vergekit",
   "version": "0.1.4",
-  "description": "Create a new VergeKit app.",
+  "description": "Create a new Verge Kit app.",
   "type": "module",
   "bin": {
     "create-vergekit": "./bin/create-vergekit.js"

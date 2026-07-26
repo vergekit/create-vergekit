@@ -38,6 +38,7 @@ async function createFixture() {
       msw: false,
       'sharp@0.34.5': true,
       'workerd@1.20260617.1': true,
+      'workerd@1.20260722.1': true,
     },
   };
   await writeFile(
@@ -77,6 +78,10 @@ test('lockfile updater composes the Node manifest and atomically replaces the te
   const result = await updateNodeMysqlLockfile({
     ...fixture,
     installPackageLock: async (workspacePath) => {
+      await assert.rejects(
+        readFile(join(workspacePath, 'package-lock.json'), 'utf8'),
+        { code: 'ENOENT' },
+      );
       installedPackage = JSON.parse(
         await readFile(join(workspacePath, 'package.json'), 'utf8'),
       );
@@ -101,6 +106,10 @@ test('lockfile updater composes the Node manifest and atomically replaces the te
   assert.equal(installedPackage.allowScripts['sharp@0.34.5'], true);
   assert.equal(
     installedPackage.allowScripts['workerd@1.20260617.1'],
+    undefined,
+  );
+  assert.equal(
+    installedPackage.allowScripts['workerd@1.20260722.1'],
     undefined,
   );
   assert.deepEqual(

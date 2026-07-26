@@ -80,7 +80,10 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
           '@cloudflare/workers-types',
           'wrangler',
         ]),
-        allowScripts: Object.freeze(['workerd@1.20260617.1']),
+        allowScripts: Object.freeze([
+          'workerd@1.20260617.1',
+          'workerd@1.20260722.1',
+        ]),
       }),
       merge: Object.freeze({
         scripts: Object.freeze({

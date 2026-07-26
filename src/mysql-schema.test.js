@@ -110,24 +110,23 @@ async function readSnapshot() {
   return JSON.parse(await readFile(snapshotPath, 'utf8'));
 }
 
-test('MySQL overlay matches the pinned Better Auth 1.6.x core and admin field contract', async () => {
+test('MySQL overlay matches the patched Better Auth 1.6.x core and admin field contract', async () => {
   const snapshot = await readSnapshot();
   const packageLock = JSON.parse(
     await readFile(join(overlayPath, 'package-lock.json'), 'utf8'),
   );
 
   assert.equal(
-    packageLock.packages['node_modules/@vergekit/core/node_modules/better-auth']
-      .version,
-    '1.6.19',
+    packageLock.packages['node_modules/@vergekit/core/node_modules/better-auth'],
+    undefined,
   );
   assert.equal(
     packageLock.packages['node_modules/@better-auth/drizzle-adapter'].version,
-    '1.6.19',
+    '1.6.25',
   );
-  assert.match(
+  assert.equal(
     packageLock.packages['node_modules/better-auth'].version,
-    /^1\.6\./,
+    '1.6.25',
   );
   assert.equal(snapshot.dialect, 'mysql');
   assert.deepEqual(Object.keys(snapshot.tables).sort(), [

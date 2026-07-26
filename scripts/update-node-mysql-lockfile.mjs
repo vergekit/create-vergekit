@@ -2,8 +2,6 @@
 
 import { execFile } from 'node:child_process';
 import {
-  access,
-  copyFile,
   mkdtemp,
   readFile,
   rename,
@@ -87,10 +85,6 @@ export async function updateNodeMysqlLockfile({
       join(workspacePath, 'package.json'),
       `${JSON.stringify(nodePackage, null, 2)}\n`,
     );
-
-    if (await pathExists(lockfilePath)) {
-      await copyFile(lockfilePath, generatedLockfilePath);
-    }
 
     await installPackageLock(workspacePath);
 
@@ -197,15 +191,6 @@ async function readJson(path, label) {
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     throw new Error(`Unable to read ${label}: ${reason}`, { cause: error });
-  }
-}
-
-async function pathExists(path) {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
   }
 }
 
