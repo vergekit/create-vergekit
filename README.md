@@ -106,3 +106,7 @@ Check the npm package contents before publishing:
 ```bash
 npm pack --dry-run
 ```
+
+## License
+
+`create-vergekit` is available under the [MIT License](./LICENSE).
