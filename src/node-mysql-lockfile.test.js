@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -78,9 +78,9 @@ test('lockfile updater composes the Node manifest and atomically replaces the te
   const result = await updateNodeMysqlLockfile({
     ...fixture,
     installPackageLock: async (workspacePath) => {
-      await assert.rejects(
-        readFile(join(workspacePath, 'package-lock.json'), 'utf8'),
-        { code: 'ENOENT' },
+      assert.equal(
+        await readFile(join(workspacePath, 'package-lock.json'), 'utf8'),
+        await readFile(fixture.lockfilePath, 'utf8'),
       );
       installedPackage = JSON.parse(
         await readFile(join(workspacePath, 'package.json'), 'utf8'),
@@ -95,7 +95,7 @@ test('lockfile updater composes the Node manifest and atomically replaces the te
 
   assert.equal(installedPackage.dependencies.astro, '^7.0.4');
   assert.equal(installedPackage.dependencies['@astrojs/cloudflare'], undefined);
-  assert.equal(installedPackage.dependencies['@astrojs/node'], '^11.0.2');
+  assert.equal(installedPackage.dependencies['@astrojs/node'], '^11.1.5');
   assert.equal(installedPackage.dependencies.mysql2, '^3.23.0');
   assert.equal(installedPackage.devDependencies.wrangler, undefined);
   assert.equal(installedPackage.scripts['db:migrate:local'], undefined);
@@ -117,6 +117,34 @@ test('lockfile updater composes the Node manifest and atomically replaces the te
     result.packageLock,
   );
 });
+
+for (const mode of ['full refresh', 'missing lockfile']) {
+  test(`lockfile updater resolves from scratch for ${mode}`, async () => {
+    const fixture = await createFixture();
+    if (mode === 'missing lockfile') await rm(fixture.lockfilePath);
+
+    await updateNodeMysqlLockfile({
+      ...fixture,
+      fullRefresh: mode === 'full refresh',
+      installPackageLock: async (workspacePath) => {
+        await assert.rejects(
+          readFile(join(workspacePath, 'package-lock.json'), 'utf8'),
+          { code: 'ENOENT' },
+        );
+        const packageJson = JSON.parse(
+          await readFile(join(workspacePath, 'package.json'), 'utf8'),
+        );
+        await writeFile(
+          join(workspacePath, 'package-lock.json'),
+          JSON.stringify(createLockfile(packageJson)),
+        );
+      },
+      log: () => {},
+    });
+
+    assert.equal(JSON.parse(await readFile(fixture.lockfilePath, 'utf8')).lockfileVersion, 3);
+  });
+}
 
 test('lockfile updater preserves the existing lock when npm fails', async () => {
   const fixture = await createFixture();
@@ -140,8 +168,10 @@ test('lockfile updater parses its maintenance CLI arguments', () => {
   assert.deepEqual(parseUpdateArguments(['--boilerplate', '../custom']), {
     boilerplatePath: resolve('../custom'),
     help: false,
+    fullRefresh: false,
   });
   assert.equal(parseUpdateArguments(['--help']).help, true);
+  assert.equal(parseUpdateArguments(['--full-refresh']).fullRefresh, true);
   assert.throws(
     () => parseUpdateArguments(['--boilerplate']),
     /Missing value for --boilerplate/,

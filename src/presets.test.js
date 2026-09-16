@@ -56,7 +56,7 @@ test('composePresetPackageJson derives Node dependencies without mutating the ca
 
   assert.equal(canonicalPackage.dependencies['@astrojs/cloudflare'], '^14.0.1');
   assert.equal(nodePackage.dependencies['@astrojs/cloudflare'], undefined);
-  assert.equal(nodePackage.dependencies['@astrojs/node'], '^11.0.2');
+  assert.equal(nodePackage.dependencies['@astrojs/node'], '^11.1.5');
   assert.equal(nodePackage.dependencies.astro, '^7.0.3');
   assert.equal(nodePackage.dependencies.mysql2, '^3.23.0');
   assert.equal(nodePackage.devDependencies.wrangler, undefined);
@@ -359,7 +359,7 @@ test('the shipped Node overlay selects standalone Node, MySQL, and Node-only dep
   assert.equal(packageJson.scripts['db:migrate'], 'drizzle-kit migrate');
   assert.equal(packageJson.scripts.start, 'node ./dist/server/entry.mjs');
   assert.equal(packageJson.dependencies['@astrojs/cloudflare'], undefined);
-  assert.equal(packageJson.dependencies['@astrojs/node'], '^11.0.2');
+  assert.equal(packageJson.dependencies['@astrojs/node'], '^11.1.5');
   assert.equal(packageJson.dependencies.dotenv, '^17.4.2');
   assert.equal(packageJson.dependencies.mysql2, '^3.23.0');
   assert.equal(packageJson.devDependencies['@cloudflare/workers-types'], undefined);
@@ -367,7 +367,7 @@ test('the shipped Node overlay selects standalone Node, MySQL, and Node-only dep
   assert.equal(packageJson.devDependencies['@types/node'], '^24.13.3');
   assert.equal(packageJson.engines.node, '>=22.12.0');
 
-  assert.equal(packageLock.packages[''].dependencies['@astrojs/node'], '^11.0.2');
+  assert.equal(packageLock.packages[''].dependencies['@astrojs/node'], '^11.1.5');
   assert.equal(packageLock.packages[''].dependencies.dotenv, '^17.4.2');
   assert.equal(packageLock.packages[''].dependencies.mysql2, '^3.23.0');
   assert.equal(packageLock.packages[''].dependencies['@astrojs/cloudflare'], undefined);

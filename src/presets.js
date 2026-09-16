@@ -90,7 +90,7 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
           start: 'node ./dist/server/entry.mjs',
         }),
         dependencies: Object.freeze({
-          '@astrojs/node': '^11.0.2',
+          '@astrojs/node': '^11.1.5',
           dotenv: '^17.4.2',
           mysql2: '^3.23.0',
         }),

@@ -2,6 +2,7 @@
 
 import { execFile } from 'node:child_process';
 import {
+  copyFile,
   mkdtemp,
   readFile,
   rename,
@@ -26,9 +27,15 @@ const defaultLockfilePath = resolve(
 export function parseUpdateArguments(argv) {
   let boilerplatePath = defaultBoilerplatePath;
   let help = false;
+  let fullRefresh = false;
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
+
+    if (argument === '--full-refresh') {
+      fullRefresh = true;
+      continue;
+    }
 
     if (argument === '--help' || argument === '-h') {
       help = true;
@@ -57,12 +64,13 @@ export function parseUpdateArguments(argv) {
     throw new Error(`Unknown option: ${argument}`);
   }
 
-  return { boilerplatePath, help };
+  return { boilerplatePath, help, fullRefresh };
 }
 
 export async function updateNodeMysqlLockfile({
   boilerplatePath = defaultBoilerplatePath,
   lockfilePath = defaultLockfilePath,
+  fullRefresh = false,
   installPackageLock = installPackageLockWithNpm,
   log = console.log,
 } = {}) {
@@ -85,6 +93,14 @@ export async function updateNodeMysqlLockfile({
       join(workspacePath, 'package.json'),
       `${JSON.stringify(nodePackage, null, 2)}\n`,
     );
+
+    if (!fullRefresh) {
+      try {
+        await copyFile(lockfilePath, generatedLockfilePath);
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+      }
+    }
 
     await installPackageLock(workspacePath);
 
@@ -200,6 +216,11 @@ function helpText() {
 Usage:
   npm run update:node-mysql-lock
   npm run update:node-mysql-lock -- --boilerplate ../boilerplate
+  npm run update:node-mysql-lock -- --full-refresh
+
+By default, reuse the existing lockfile to preserve compatible locked versions.
+If no lockfile exists, generate one. Use --full-refresh to resolve all dependencies
+from scratch within the composed package.json ranges.
 `;
 }
 

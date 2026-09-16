@@ -236,7 +236,7 @@ test('node-mysql composes a clean full fixture with only Node/MySQL operations',
 
   const packageJson = JSON.parse(tree['package.json']);
   const packageLock = JSON.parse(tree['package-lock.json']);
-  assert.equal(packageJson.dependencies['@astrojs/node'], '^11.0.2');
+  assert.equal(packageJson.dependencies['@astrojs/node'], '^11.1.5');
   assert.equal(packageJson.dependencies.mysql2, '^3.23.0');
   assert.equal(packageJson.scripts['db:migrate'], 'drizzle-kit migrate');
   assert.equal(packageJson.scripts['db:migrate:local'], undefined);
