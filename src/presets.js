@@ -69,7 +69,6 @@ const DEFAULT_PRESET_DEFINITIONS = Object.freeze({
       'tests/db',
       'tests/docs',
       'tests/email/send-email.test.ts',
-      'tsconfig.json',
       'wrangler.jsonc',
     ]),
     packageJson: Object.freeze({

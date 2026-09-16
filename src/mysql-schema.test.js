@@ -279,6 +279,7 @@ test('node-mysql output replaces the D1 migration history with MySQL migrations'
   await mkdir(join(stagingPath, 'migrations'), { recursive: true });
   await mkdir(join(stagingPath, 'src', 'pages'), { recursive: true });
   await writeFile(join(stagingPath, 'migrations', '0000.sql'), '-- d1\n');
+  await writeFile(join(stagingPath, 'tsconfig.json'), '{}\n');
   await writeFile(
     join(stagingPath, 'src', 'pages', 'index.astro'),
     '<h1>Canonical homepage</h1>\n',

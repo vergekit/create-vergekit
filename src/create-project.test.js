@@ -98,6 +98,7 @@ test('createProject applies the selected preset before package naming and destin
     downloadAndExtractTemplate: async (stagingPath) => {
       events.push('extract');
       await mkdir(join(stagingPath, 'src', 'pages'), { recursive: true });
+      await writeFile(join(stagingPath, 'tsconfig.json'), '{}\n');
       await writeFile(
         join(stagingPath, 'package.json'),
         `${JSON.stringify({ name: 'vk' }, null, 2)}\n`,

@@ -187,6 +187,7 @@ test('staged validation rejects preset metadata in generated output', async () =
 test('the shipped Node overlay selects standalone Node, MySQL, and Node-only dependencies', async () => {
   const stagingPath = await mkdtemp(join(tmpdir(), 'create-vergekit-staging-'));
   const canonicalIndex = '<h1>Cloudflare Workers</h1>\n';
+  await writeFile(join(stagingPath, 'tsconfig.json'), '{}\n');
   await mkdir(join(stagingPath, 'src', 'pages'), { recursive: true });
   await writeFile(
     join(stagingPath, 'package.json'),

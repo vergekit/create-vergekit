@@ -177,6 +177,7 @@ test('node-mysql composes a clean full fixture with only Node/MySQL operations',
   }
 
   assert.equal(tree['src/pages/api/health.ts'], '// common health route\n');
+  assert.equal(tree['tsconfig.json'], canonicalFiles['tsconfig.json']);
   assert.equal(
     tree['src/pages/index.astro'],
     canonicalFiles['src/pages/index.astro'],
