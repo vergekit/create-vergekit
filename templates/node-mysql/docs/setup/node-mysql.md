@@ -121,3 +121,14 @@ Deployment checklist:
 6. Check `/api/health`, sign-in, sign-out, password reset, and administrator
    access after deployment.
 7. Confirm database backups, restore testing, logs, and process monitoring.
+
+## Session Expiry
+
+The login form selects "Remember me" by default. Remembered sessions last 365 days and renew with activity once per day.
+Without "Remember me", sessions expire after 24 hours and use a browser session cookie.
+The browser can discard this cookie when its session ends.
+
+Middleware forwards renewed cookies to the browser. This also extends older remembered cookies when users return before expiry.
+
+The auth handler and middleware share these defaults through `src/config/auth-options.ts`.
+Existing apps need the same configuration and middleware changes or a later starter release.
