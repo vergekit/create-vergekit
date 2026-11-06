@@ -132,3 +132,21 @@ Middleware forwards renewed cookies to the browser. This also extends older reme
 
 The auth handler and middleware share these defaults through `src/config/auth-options.ts`.
 Existing apps need the same configuration and middleware changes or a later starter release.
+
+## Account email changes
+
+The account page lets signed-in users change their email immediately, without a password prompt or a confirmation link.
+VK trusts the replacement address for sign-in and recovery.
+The shared `POST /api/auth/change-email-direct` handler requires a valid session and rejects banned users.
+It normalizes addresses and rejects an address that another account uses.
+Database uniqueness also protects simultaneous requests.
+The current session stays active, and the handler revokes other sessions.
+The link-based email change endpoint stays disabled.
+Initial registration still requires email verification.
+
+Better Auth and its adapters use version 1.7.16.
+The package overrides keep published core 0.0.4 on patched dependencies until the updated core package is released.
+The new account handler requires that updated core package.
+No schema migration is required for the starter schema.
+Before an existing app upgrades, check its database for duplicate `(providerId, accountId)` pairs.
+Better Auth 1.7 rejects ambiguous account lookups.
